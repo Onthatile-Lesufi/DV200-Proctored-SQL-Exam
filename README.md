@@ -37,7 +37,7 @@ It allows for:
 
 ## ER Diagram
 The ERD below shows how entities are interconnected:
-![ERD](DV200_ER Diagram.png)
+[ERD](https://drive.google.com/drive/u/0/folders/1IvZvCWx8wwMnLVyj8HidKkg9kWjV80C-)
 
 ---
 
