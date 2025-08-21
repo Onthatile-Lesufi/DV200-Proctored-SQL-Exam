@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 21, 2025 at 01:00 PM
+-- Generation Time: Aug 21, 2025 at 01:57 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -143,6 +143,18 @@ INSERT INTO `contract` (`contract_id`, `player_id`, `team_id`, `start_date`, `en
 (4, 3, 4, '2024-01-01', '2026-01-01', 55000.00, 6000.00, 'Clean sheets bonus'),
 (5, 4, 5, '2023-02-01', '2024-12-01', 70000.00, 10000.00, 'Top scorer bonus');
 
+--
+-- Triggers `contract`
+--
+DELIMITER $$
+CREATE TRIGGER `default_salary` BEFORE INSERT ON `contract` FOR EACH ROW BEGIN
+IF NEW.salary IS NULL THEN
+SET NEW.salary = 50000;
+END IF;
+END
+$$
+DELIMITER ;
+
 -- --------------------------------------------------------
 
 --
@@ -223,7 +235,11 @@ CREATE TABLE `match_sponsor` (
 INSERT INTO `match_sponsor` (`match_sponsor_id`, `match_id`, `sponsor_id`) VALUES
 (1, 1, 2),
 (2, 2, 1),
-(3, 3, 3);
+(3, 3, 3),
+(4, 3, 2),
+(5, 1, 3),
+(6, 2, 2),
+(7, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -318,6 +334,19 @@ INSERT INTO `statistics` (`stat_id`, `match_id`, `player_id`, `goals`, `assists`
 (4, 2, 3, 0, 1, 2),
 (5, 3, 2, 1, 1, 0),
 (6, 3, 4, 2, 0, 1);
+
+--
+-- Triggers `statistics`
+--
+DELIMITER $$
+CREATE TRIGGER `update_team_goals` AFTER INSERT ON `statistics` FOR EACH ROW BEGIN
+UPDATE Team t
+JOIN Player p ON p.team_id = t.team_id
+SET t.total_goals = COALESCE(t.total_goals, 0) + NEW.goals
+WHERE p.player_id = NEW.player_id;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -558,7 +587,7 @@ ALTER TABLE `league_match`
 -- AUTO_INCREMENT for table `match_sponsor`
 --
 ALTER TABLE `match_sponsor`
-  MODIFY `match_sponsor_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `match_sponsor_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `player`
