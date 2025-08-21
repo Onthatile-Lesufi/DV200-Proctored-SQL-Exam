@@ -59,8 +59,54 @@ JOIN Match_Sponsor ms ON m.match_id = ms.match_id
 JOIN Sponsor s ON ms.sponsor_id = s.sponsor_id
 WHERE st.goals > 0;
 
+3. Gives player states:
+SELECT player_name, statistics.goals, statistics.assists, statistics.fouls
+FROM player
+JOIN statistics ON statistics.player_id = player.player_id
+
 ### Triggers
-1. 
+1. Prevent scheduling a match at a venue already booked:
+DELIMITER $$
+CREATE TRIGGER prevent_double_booking
+BEFORE INSERT ON leaguematch
+FOR EACH ROW
+BEGIN
+IF EXISTS (
+SELECT 1 FROM leaguematch
+WHERE venue_id = NEW.venue_id
+AND match_date = NEW.match_date
+) THEN
+INSERT INTO trigger_error_log(error_message)
+VALUES ('Venue already booked for this date!');
+SET NEW.match_id = NULL; -- Prevent insertion
+END IF;
+END$$
+DELIMITER ;
+
+2. Update team goal count when a player scores:
+DELIMITER $$
+CREATE TRIGGER update_team_goals
+AFTER INSERT ON Statistics
+FOR EACH ROW
+BEGIN
+UPDATE Team t
+JOIN Player p ON p.team_id = t.team_id
+SET t.total_goals = COALESCE(t.total_goals, 0) + NEW.goals
+WHERE p.player_id = NEW.player_id;
+END$$
+DELIMITER ;
+
+3. Default salary in contract if NULL
+DELIMITER $$
+CREATE TRIGGER default_salary
+BEFORE INSERT ON Contract
+FOR EACH ROW
+BEGIN
+IF NEW.salary IS NULL THEN
+SET NEW.salary = 50000;
+END IF;
+END$$
+DELIMITER ;
 
 ### Stored Procedures
 1. Get player career stats across all matches:
