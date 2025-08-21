@@ -37,7 +37,7 @@ It allows for:
 
 ## ER Diagram
 The ERD below shows how entities are interconnected:
-[ERD](https://drive.google.com/drive/u/0/folders/1IvZvCWx8wwMnLVyj8HidKkg9kWjV80C-)
+[ERD](https://drive.google.com/drive/folders/1IvZvCWx8wwMnLVyj8HidKkg9kWjV80C-?usp=sharing)
 
 ---
 
@@ -146,24 +146,22 @@ GROUP BY m.match_id, th.team_name, ta.team_name, v.venue_name, r.referee_name;
 END //
 DELIMITER ;
 
-3. Calculate revenue sharing among teams for a match (50/50 split):
-- DELIMITER //
-CREATE PROCEDURE revenue_sharing(IN matchId INT)
+3. Player Stats:
+DELIMITER //
 BEGIN
-DECLARE totalRev DECIMAL(10,2);
-DECLARE homeId INT;
-DECLARE awayId INT;
-
-SELECT revenue INTO totalRev FROM Broadcast WHERE match_id = matchId;
-SELECT home_team_id, away_team_id INTO homeId, awayId FROM Match WHERE match_id = matchId;
-
-SELECT homeId AS home_team, awayId AS away_team,
-totalRev/2 AS revenue_each;
-END //
+SELECT p.player_name,
+SUM(goals) AS total_goals,
+SUM(assists) AS total_assists,
+SUM(fouls) AS total_fouls
+FROM Player p
+JOIN Statistics s ON p.player_id = s.player_id
+WHERE p.player_id = playerId
+GROUP BY p.player_name;
+END
 DELIMITER ;
 
 ## Links
-[Videos](https://drive.google.com/drive/u/0/folders/1IvZvCWx8wwMnLVyj8HidKkg9kWjV80C-)
+[Videos](https://drive.google.com/drive/folders/1IvZvCWx8wwMnLVyj8HidKkg9kWjV80C-?usp=sharing)
 
 
 ## Authors
