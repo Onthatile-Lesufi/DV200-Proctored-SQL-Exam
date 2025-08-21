@@ -100,9 +100,25 @@ GROUP BY m.match_id, th.team_name, ta.team_name, v.venue_name, r.referee_name;
 END //
 DELIMITER ;
 
+3. Calculate revenue sharing among teams for a match (50/50 split):
+- DELIMITER //
+CREATE PROCEDURE revenue_sharing(IN matchId INT)
+BEGIN
+DECLARE totalRev DECIMAL(10,2);
+DECLARE homeId INT;
+DECLARE awayId INT;
+
+SELECT revenue INTO totalRev FROM Broadcast WHERE match_id = matchId;
+SELECT home_team_id, away_team_id INTO homeId, awayId FROM Match WHERE match_id = matchId;
+
+SELECT homeId AS home_team, awayId AS away_team,
+totalRev/2 AS revenue_each;
+END //
+DELIMITER ;
+
 ## Links
-[click here](www.google.com)
-[click here](www.google.com)
+[Videos](https://drive.google.com/drive/u/0/folders/1IvZvCWx8wwMnLVyj8HidKkg9kWjV80C-)
+
 
 ## Authors
 Angie van Rooyen
